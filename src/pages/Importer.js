@@ -9,11 +9,14 @@ class Importer extends Component {
             wbk: null,
             csv: null,
             colChoices: [],
-            drgCol: null,
-            costCol: null,
+            drgCol: '',
+            costCol: ''
         }
         this.handleFile = this.handleFile.bind(this)
         this.extractData = this.extractData.bind(this)
+        this.handleDrChange = this.handleDrChange.bind(this)
+        this.handleCstChange = this.handleCstChange.bind(this)
+        this.completeUpload = this.completeUpload.bind(this)
         this.fileInput = React.createRef()
     }
     extractData() {
@@ -32,12 +35,44 @@ class Importer extends Component {
         }
         excelReader.readAsArrayBuffer(excelFile)
     }
+    
+    completeUpload() {
+        var payload = {
+            csv: JSON.stringify(this.state.csv),
+            drgCol: this.state.drgCol,
+            costCol: this.state.costCol
+        }
+        console.log(payload)
+        // TODO: add name and URL, and submit via POST to server
+    }
+
+    handleDrChange(e) {
+        this.setState({drgCol: e.target.value})
+    }
+
+    handleCstChange(e) {
+        this.setState({costCol: e.target.value})
+    }
+
     render() {
         var colList = null
         if (this.state.colChoices.length > 0) {
             colList = this.state.colChoices.map((val, idx) => {
                 return <p key={idx}>Column {idx}: {val}</p>
             })
+        }
+        var colInput = null
+        if (colList) { 
+            colInput = (
+                <div>
+                    <h2 className="title is-4">Select DRG Column and Pricing Column</h2>
+                    {colList}
+                    <br/>
+                    <p><strong>DRG Column Index:</strong> <input type="text" value={this.state.drgCol} onChange={this.handleDrChange} /></p>
+                    <p><strong>Pricing Column Index:</strong> <input type="text" value={this.state.costCol} onChange={this.handleCstChange} /></p> 
+                    <button className="button is-primary" onClick={this.completeUpload}>Complete Upload</button>
+                </div>
+            )
         }
         return (
             <section className="section">
@@ -52,7 +87,7 @@ class Importer extends Component {
                             <button className="button is-link" onClick={this.handleFile}>Upload</button>
                             <br />
                             <br/>
-                            {colList}
+                            {colInput}
                         </div>
                         <br/>
                         <div className="column is-hidden-mobile"></div>
