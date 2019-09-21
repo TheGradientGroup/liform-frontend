@@ -12,6 +12,8 @@ ReactDOM.render(
 <Router>
     <Navbar />
     <Route path="/" component={Home} />
+
+    <Route exact path="/" component={Home} />
     <Route path="/treatment/:id" component={TreatmentDetail} />
 </Router>, 
 document.getElementById('root'))

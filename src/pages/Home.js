@@ -10,7 +10,19 @@ class Home extends Component {
             <h2 className="subtitle">Make major medical procedures more affordable.</h2>
           </div>
         </div>
-        
+
+        <div className="container">
+          <div class="field has-addons" style={{justifyContent: 'center'}}>
+            <div class="control">
+              <input class="input" type="text" placeholder="Enter a MS-DRG Code"/>
+            </div>
+            <div class="control">
+              <a class="button is-info">
+                Search
+              </a>
+            </div>
+          </div>
+        </div>
       </div>
     )
   }
