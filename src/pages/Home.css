@@ -1,0 +1,22 @@
+.home {
+    background: #7DFFCF;
+}
+
+.home-hero {
+    background: #FFFFFF;
+    display: flex;
+    align-items: center;
+}
+
+.home-title {
+    margin-top: 100px;
+    font-weight: bold;
+    font-size: 50px;
+    color: #1800BD;
+}
+
+.home-subtitle {
+    margin-bottom: 100px;
+    font-size: 20px;
+    color: #1800BD;
+}

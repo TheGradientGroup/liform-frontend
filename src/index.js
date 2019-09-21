@@ -11,8 +11,6 @@ import Navbar from "./components/Navbar"
 ReactDOM.render(
 <Router>
     <Navbar />
-    <Route path="/" component={Home} />
-
     <Route exact path="/" component={Home} />
     <Route path="/treatment/:id" component={TreatmentDetail} />
 </Router>, 
