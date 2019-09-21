@@ -9,7 +9,7 @@ import {BrowserRouter as Router, Route} from 'react-router-dom'
 
 ReactDOM.render(
 <Router>
-    <Route path="/" component={Home} />
+    <Route exact path="/" component={Home} />
     <Route path="/treatment/:id" component={TreatmentDetail} />
 </Router>, 
 document.getElementById('root'))
