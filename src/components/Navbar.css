@@ -30,8 +30,14 @@
     color: #1800BD;
 }
 
+.liform-top-search:hover {
+    border-bottom: 2px solid #1800BD;
+}
+
 .liform-top-search:focus, .liform-top-search:active  {
     outline: none;
+    border-bottom: 2px solid #1800BD;
+    box-shadow: none;
 }
 
 @media screen and (max-width: 500px) {
