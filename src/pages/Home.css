@@ -3,9 +3,8 @@
 }
 
 .home-hero {
-    background: #FFFFFF;
-    display: flex;
-    align-items: center;
+    background: url('/hero-img.jpg');
+    background-size: cover;
 }
 
 .home-title {
