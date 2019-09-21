@@ -10,12 +10,16 @@ class Importer extends Component {
             csv: null,
             colChoices: [],
             drgCol: '',
-            costCol: ''
+            costCol: '',
+            name: '',
+            url: ''
         }
         this.handleFile = this.handleFile.bind(this)
         this.extractData = this.extractData.bind(this)
         this.handleDrChange = this.handleDrChange.bind(this)
         this.handleCstChange = this.handleCstChange.bind(this)
+        this.handleNameChange = this.handleNameChange.bind(this)
+        this.handleUrlChange = this.handleUrlChange.bind(this)
         this.completeUpload = this.completeUpload.bind(this)
         this.fileInput = React.createRef()
     }
@@ -40,10 +44,12 @@ class Importer extends Component {
         var payload = {
             csv: JSON.stringify(this.state.csv),
             drgCol: this.state.drgCol,
-            costCol: this.state.costCol
+            costCol: this.state.costCol,
+            name: this.state.name,
+            url: this.state.url
         }
         console.log(payload)
-        // TODO: add name and URL, and submit via POST to server
+        // TODO: Submit via POST to server
     }
 
     handleDrChange(e) {
@@ -52,6 +58,14 @@ class Importer extends Component {
 
     handleCstChange(e) {
         this.setState({costCol: e.target.value})
+    }
+
+    handleNameChange(e) {
+        this.setState({name: e.target.value})
+    }
+
+    handleUrlChange(e) {
+        this.setState({url: e.target.value})
     }
 
     render() {
@@ -70,7 +84,20 @@ class Importer extends Component {
                     <br/>
                     <p><strong>DRG Column Index:</strong> <input type="text" value={this.state.drgCol} onChange={this.handleDrChange} /></p>
                     <p><strong>Pricing Column Index:</strong> <input type="text" value={this.state.costCol} onChange={this.handleCstChange} /></p> 
+                    <br/>
+                </div>
+            )
+        }
+        var metadataInput = null
+        if (colList) {
+            metadataInput = (
+                <div>
+                    <h2 className="title is-4">Enter Hospital Info</h2>
+                    <br/>
+                    <p><strong>Hospital Name:</strong> <input type="text" value={this.state.name} onChange={this.handleNameChange} /></p>
+                    <p><strong>Hospital URL:</strong> <input type="text" value={this.state.url} onChange={this.handleUrlChange} /></p> 
                     <button className="button is-primary" onClick={this.completeUpload}>Complete Upload</button>
+                    <br/>
                 </div>
             )
         }
@@ -88,6 +115,7 @@ class Importer extends Component {
                             <br />
                             <br/>
                             {colInput}
+                            {metadataInput}
                         </div>
                         <br/>
                         <div className="column is-hidden-mobile"></div>
