@@ -1,5 +1,4 @@
 import React, { Component } from 'react'
-import { BarChart, CartesianGrid, XAxis, YAxis, Tooltip, Bar, Legend } from 'recharts'
 import './TreatmentDetail.css'
 import drgMappings from '../util/drgMappings'
 
@@ -119,24 +118,11 @@ class TreatmentDetail extends Component {
                     <div className="container">
                         <h4 className="title is-4 has-text-centered">Hospitals Near You</h4>
                         <div className="columns">
-                            <div className="column graph-column">
-                                <BarChart width={730} height={250} data={this.state.results}>
-                                    <CartesianGrid strokeDasharray="3 3" />
-                                    <XAxis dataKey="name" />
-                                    <YAxis />
-                                    <Tooltip />
-                                    {
-                                        this.state.results.map((result) => {
-                                            return <Bar />
-                                        })
-                                        // TODO: Fill smallest bar with different color
-                                    }
-                                </BarChart>
-                            </div>
                             <div className="column">
                                 <p><strong>Hospital Name:</strong> <div className="select">{hospitalSelector}</div></p>
                                 <ResultsList results={this.state.results} />
                             </div>
+                            <div className="column"></div>
                         </div>
                     </div>
                 </section>
