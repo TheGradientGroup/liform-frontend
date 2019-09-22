@@ -9,7 +9,6 @@ class Home extends Component {
           <h1 className="home-title">Share and compare medical bills.</h1>
           <h2 className="home-subtitle">Make major medical procedures more affordable.</h2>
         </div>
-        <footer className="footer"></footer>
       </div>
     )
   }
