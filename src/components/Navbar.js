@@ -79,11 +79,11 @@ class Navbar extends Component {
                     <img src="/logo.svg" className="liform-logo" />
                     <input
                         type="search"
-                        value={this.props.currentRefinement}
-                        onChange={event => this.props.refine(event.currentTarget.value)}
+                        // value={this.props.currentRefinement}
+                        // onChange={event => this.props.refine(event.currentTarget.value)}
                         className="input liform-top-search"
-                        // value={this.state.searchText}
-                        // onChange={this.handleSearchTextChange}
+                        value={this.state.searchText}
+                        onChange={this.handleSearchTextChange}
                         onFocus={() => this.setState({ displaySuggestions: true })}
                         onBlur={() => this.setState({ displaySuggestions: false })}
                         placeholder="search for a treatment or DRG code"
@@ -95,4 +95,4 @@ class Navbar extends Component {
     }
 }
 
-export default connectAutoComplete(Navbar)
+export default (Navbar)
