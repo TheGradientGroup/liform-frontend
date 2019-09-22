@@ -1,5 +1,8 @@
 import React, { Component } from 'react'
+import { BarChart, CartesianGrid, XAxis, YAxis, Tooltip, Bar, Legend } from 'recharts'
 import './TreatmentDetail.css'
+
+const BASE_URL = 'https://liform-backend.herokuapp.com/'
 
 class Result extends Component {
 
@@ -64,10 +67,6 @@ class TreatmentDetail extends Component {
         return results => results.reduce((a, b) => a.price + b, 0) / results.length
     }
 
-    fetchResults(query) {
-        // TODO
-    }
-
     render() {
         return (
             <>
@@ -83,12 +82,35 @@ class TreatmentDetail extends Component {
                         </div>
                     </div>
                 </section>
-                <section className="section">
+                <section id="treatmentResults" className="section">
                     <div className="container">
                         <h4 className="title is-4 has-text-centered">Hospitals Near You</h4>
-                        <ResultsList results={this.state.results} />
-                        <div className="has-text-centered"><em>Did you get this procedure? Help others out and <a href="#">share your medical bill here &rarr;</a></em></div>
+                        <div className="columns">
+                            <div className="column graph-column">
+                                <BarChart width={730} height={250} data={this.state.results}>
+                                    <CartesianGrid strokeDasharray="3 3" />
+                                    <XAxis dataKey="name" />
+                                    <YAxis />
+                                    <Tooltip />
+                                    {/* <Legend /> */}
+                                    {
+                                        this.state.results.map((result) => {
+
+                                            return <Bar />
+                                        })
+                                        // TODO: Fill smallest bar with different color
+                                    }
+                                </BarChart>
+                            </div>
+                            <div className="column">
+                                {/* TODO: Replace with dropdown menu */}
+                                <ResultsList results={this.state.results} />
+                            </div>
+                        </div>
                     </div>
+                </section>
+                <section id="submitBillCta">
+                    <div className="has-text-centered"><em>Did you get this procedure? Help others out and <a href="#">share your medical bill here &rarr;</a></em></div>
                 </section>
             </>
         )

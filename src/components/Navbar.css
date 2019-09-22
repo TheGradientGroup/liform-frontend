@@ -41,6 +41,10 @@
     box-shadow: none;
 }
 
+input.input {
+    cursor: pointer;
+}
+
 @media screen and (max-width: 500px) {
     .liform-top-search {
         margin-left: 20px;

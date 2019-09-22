@@ -48,8 +48,7 @@ class Importer extends Component {
             name: this.state.name,
             url: this.state.url
         }
-        console.log(payload)
-        // TODO: Submit via POST to server
+        fetch()
     }
 
     handleDrChange(e) {
