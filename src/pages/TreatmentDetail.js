@@ -2,6 +2,8 @@ import React, { Component } from 'react'
 import { BarChart, CartesianGrid, XAxis, YAxis, Tooltip, Bar, Legend } from 'recharts'
 import './TreatmentDetail.css'
 
+const drgMappings = require('../drgmappings.js')
+
 const BASE_URL = 'https://liform-backend.herokuapp.com'
 
 function formatCurrency(amount) {
@@ -62,16 +64,23 @@ class TreatmentDetail extends Component {
     }
 
     componentDidMount() {
-        const id = this.props.match.params.id
-        fetch(`${BASE_URL}/procedures/${id}`)
+        const drg = this.props.match.params.id
+        const description = drg in drgMappings ? drgMappings[drg] : 'Uknown treatment'
+        fetch(`${BASE_URL}/procedures/${drg}`)
             .then(res => res.json())
             .then(obj => {
                 this.setState({
-                    treatmentName: obj.desc,
-                    averageCost: obj.avg
+                    averageCost: obj.avg,
+                    treatmentName: description
                 })
-                return fetch(`${BASE_URL}/procedures/${id}/${this.state.selectedHospitalId}`)
+                return fetch(`${BASE_URL}/procedures/${drg}/${this.state.selectedHospitalId}`)
                     .then(res => res.json())
+                    .then(obj => {
+                        this.setState({
+                            averageCost: obj, // It's stored differently in database
+                            treatmentName: description
+                        })
+                    })
             })
     }
 
