@@ -1,8 +1,7 @@
 import React, { Component } from 'react'
 import { BarChart, CartesianGrid, XAxis, YAxis, Tooltip, Bar, Legend } from 'recharts'
 import './TreatmentDetail.css'
-
-const drgMappings = require('../util/drgmappings.js')
+import drgMappings from '../util/drgMappings'
 
 const BASE_URL = 'https://liform-backend.herokuapp.com'
 
@@ -65,22 +64,25 @@ class TreatmentDetail extends Component {
 
     componentDidMount() {
         const drg = this.props.match.params.id
-        const description = drg in drgMappings ? drgMappings[drg] : 'Uknown treatment'
+        console.log(drgMappings[`${drg}`])
+        console.log(drgMappings)
+        const description = drg in drgMappings ? drgMappings[drg] : 'Unknown treatment'
         fetch(`${BASE_URL}/procedures/${drg}`)
             .then(res => res.json())
             .then(obj => {
+                console.log(obj)
                 this.setState({
                     averageCost: obj.avg,
                     treatmentName: description
                 })
-                return fetch(`${BASE_URL}/procedures/${drg}/${this.state.selectedHospitalId}`)
-                    .then(res => res.json())
-                    .then(obj => {
-                        this.setState({
-                            averageCost: obj, // It's stored differently in database
-                            treatmentName: description
-                        })
-                    })
+                // return fetch(`${BASE_URL}/procedures/${drg}/${this.state.selectedHospitalId}`)
+                //     .then(res => res.json())
+                //     .then(obj => {
+                //         this.setState({
+                //             averageCost: obj, // It's stored differently in database
+                //             treatmentName: description
+                //         })
+                //     })
             })
     }
 
@@ -96,13 +98,16 @@ class TreatmentDetail extends Component {
                 </select>
             )
         }
+        const drg = this.props.match.params.id
+        const description = drg in drgMappings ? drgMappings[drg] : 'Unknown treatment'
+        this.componentDidMount()
         return (
             <>
                 <section className="section treatment-hero">
                     <div className="container">
                         <div className="columns">
                             <div className="column">
-                                <h1 className="title">{this.state.treatmentName}</h1>
+                                <h1 className="title">{description}</h1>
                             </div>
                             <div className="column is-4" style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', fontSize: '1.3rem' }}>
                                 Average cost: {formatCurrency(this.state.averageCost)}
