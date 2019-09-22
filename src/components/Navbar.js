@@ -36,7 +36,7 @@ class Navbar extends Component {
 
     handleInputChange() { 
         if (this.state.searchSuggestions.length === 0 ||!this.state.searchSuggestions[0]) { return }
-        this.props.history.push(`/procedures/${this.state.searchSuggestions[0].drg}`)
+        this.props.history.push(`/treatment/${this.state.searchSuggestions[0].drg}`)
     }
 
     render() {
