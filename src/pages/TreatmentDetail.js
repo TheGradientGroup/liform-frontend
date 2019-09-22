@@ -2,7 +2,7 @@ import React, { Component } from 'react'
 import { BarChart, CartesianGrid, XAxis, YAxis, Tooltip, Bar, Legend } from 'recharts'
 import './TreatmentDetail.css'
 
-const drgMappings = require('../drgmappings.js')
+const drgMappings = require('../util/drgmappings.js')
 
 const BASE_URL = 'https://liform-backend.herokuapp.com'
 
