@@ -50,7 +50,7 @@ class Navbar extends Component {
         var searchSugg = null
         if (this.state.displaySuggestions) {
             var sugArr = this.state.searchSuggestions.map(({ drg, desc }) => {
-                return <option key={drg} value={desc} onClick={() => { this.props.history.push(`/treatments/${drg}`) }} />
+                return <option key={drg} value={desc} onClick={() => { this.props.history.push(`/procedures/${drg}`) }} />
             })
             searchSugg = (
                 <datalist id="data">
