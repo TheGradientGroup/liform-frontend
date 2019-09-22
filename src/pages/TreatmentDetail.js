@@ -2,16 +2,13 @@ import React, { Component } from 'react'
 import { BarChart, CartesianGrid, XAxis, YAxis, Tooltip, Bar, Legend } from 'recharts'
 import './TreatmentDetail.css'
 
-const BASE_URL = 'https://liform-backend.herokuapp.com/'
+const BASE_URL = 'https://liform-backend.herokuapp.com'
+
+function formatCurrency(amount) {
+   return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(amount)
+}
 
 class Result extends Component {
-
-    /**
-     * @param {Number} amount The price to convert into United States dollars.
-     */
-    formatCurrency(amount) {
-        return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(amount)
-    }
 
     render() {
         return (
@@ -22,7 +19,7 @@ class Result extends Component {
                             <strong>{this.props.hospital.name}</strong>
                             <p><em>{this.props.hospital.location}</em></p>
                         </div>
-                        <div className="column has-text-right">{this.formatCurrency(this.props.hospital.price)}</div>
+                        <div className="column has-text-right">{formatCurrency(this.props.hospital.price)}</div>
                     </div>
                 </div>
             </div>
@@ -63,6 +60,12 @@ class TreatmentDetail extends Component {
         }
     }
 
+    componentDidMount() {
+        fetch(`${BASE_URL}/procedures/${this.props.match.params.id}`)
+            .then(res => res.json())
+            .then(obj => this.setState({averageCost: obj.avg}))
+    }
+
     calculuateAverageCost(results) {
         return results => results.reduce((a, b) => a.price + b, 0) / results.length
     }
@@ -77,7 +80,7 @@ class TreatmentDetail extends Component {
                                 <h1 className="title">{this.state.treatmentName}</h1>
                             </div>
                             <div className="column is-4" style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', fontSize: '1.3rem' }}>
-                                Average cost: {this.calculuateAverageCost(this.state.results)}
+                                Average cost: {formatCurrency(this.state.averageCost)}
                             </div>
                         </div>
                     </div>
