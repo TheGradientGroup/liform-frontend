@@ -1,4 +1,5 @@
 import React, { Component } from 'react'
+import { BarChart, CartesianGrid, XAxis, YAxis, Tooltip, Bar, Legend } from 'recharts'
 import './TreatmentDetail.css'
 import drgMappings from '../util/drgMappings'
 
@@ -43,45 +44,49 @@ class TreatmentDetail extends Component {
     constructor(props) {
         super(props);
         this.state = {
-            treatmentName: 'Cartoid Artery Stent Procedure',
-            averageCost: 0,
-            selectedHospitalId: '',
-            results: [
-                {
-                    name: 'X Hospital',
-                    location: 'Richardson',
-                    price: 150000
-                },
-                {
-                    name: 'Y Hospital',
-                    location: 'Coppell, TX',
-                    price: 99000
-                }
-            ]
+            hospitals: [],
+            hospitalID: null,
+            currentHospitalCost: null,
+            averageCost: null,
+            treatmentName: null 
         }
+    }
+
+    changeHospital(e) {
+        this.setState({ hospitalID: e.target.value })
+        fetch(`${BASE_URL}/`)
     }
 
     componentDidMount() {
         const drg = this.props.match.params.id
-        console.log(drgMappings[`${drg}`])
-        console.log(drgMappings)
+        // console.log(drgMappings[`${drg}`])
+        // console.log(drgMappings)
         const description = drg in drgMappings ? drgMappings[drg] : 'Unknown treatment'
         fetch(`${BASE_URL}/procedures/${drg}`)
             .then(res => res.json())
             .then(obj => {
-                console.log(obj)
+                // console.log(obj)
                 this.setState({
                     averageCost: obj.avg,
                     treatmentName: description
                 })
-                // return fetch(`${BASE_URL}/procedures/${drg}/${this.state.selectedHospitalId}`)
-                //     .then(res => res.json())
-                //     .then(obj => {
-                //         this.setState({
-                //             averageCost: obj, // It's stored differently in database
-                //             treatmentName: description
-                //         })
-                //     })
+                
+            })
+        fetch(`${BASE_URL}/hospitals`)
+            .then(res => res.json())
+            .then(json => {
+                this.setState({ hospitals: json, hospitalID: json[0] })
+            })
+    }
+
+    findHospitalCost() {
+        const drg = this.props.match.params.id
+        fetch(`${BASE_URL}/procedures/${drg}/${this.state.selectedHospitalId}`)
+            .then(res => res.json())
+            .then(obj => {
+                this.setState({
+                    currentHospitalCost: obj.cost
+                })
             })
     }
 
@@ -99,7 +104,6 @@ class TreatmentDetail extends Component {
         }
         const drg = this.props.match.params.id
         const description = drg in drgMappings ? drgMappings[drg] : 'Unknown treatment'
-        this.componentDidMount()
         return (
             <>
                 <section className="section treatment-hero">
@@ -119,10 +123,19 @@ class TreatmentDetail extends Component {
                         <h4 className="title is-4 has-text-centered">Hospitals Near You</h4>
                         <div className="columns">
                             <div className="column">
-                                <p><strong>Hospital Name:</strong> <div className="select">{hospitalSelector}</div></p>
-                                <ResultsList results={this.state.results} />
+                                <strong>Select Hospital:&nbsp;</strong>
+                                <br/>
+                                <div className="select">
+                                {hospitalSelector}
+                                </div>
+                                {/* <p><strong>Hospital Name:</strong> <div className="select">{hospitalSelector}</div></p>
+                                <ResultsList results={this.state.results} /> */}
                             </div>
-                            <div className="column"></div>
+                            <div className="column">
+                                <div className="box">
+
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </section>

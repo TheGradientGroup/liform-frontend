@@ -75,7 +75,7 @@ class UserSubmissionPage extends Component {
                     <div className="columns">
                         <div className="column">
                             <section id="userSubmission">
-                                <div className="title">Share your medical recipt data</div>
+                                <div className="title">Share your medical receipt data</div>
                                 <div className="subtitle">Your data is anonymized and not associated with you.</div>
                                 <div className="submission-box">
                                     <p><strong>DRG Code:</strong> <input className="input" type="number" max="999" value={this.state.drg} onChange={this.handleDrgChange} /></p>
