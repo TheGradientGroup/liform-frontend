@@ -14,7 +14,7 @@ ReactDOM.render(
     <Router>
         <Navbar />
         <Route exact path="/" component={Home} />
-        <Route path="/treatment/:id" component={TreatmentDetail} />
+        <Route path="/treatment/:id/:hosptialId" component={TreatmentDetail} />
         <Route path="/import" component={Importer} />
         <Route path="/submit" component={UserSubmission} />
     </Router>,
