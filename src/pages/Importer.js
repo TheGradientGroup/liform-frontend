@@ -13,7 +13,8 @@ class Importer extends Component {
             costCol: '',
             name: '',
             url: '',
-            location: ''
+            location: '',
+            requestSuccess: null
         }
         this.handleFile = this.handleFile.bind(this)
         this.extractData = this.extractData.bind(this)
@@ -52,7 +53,6 @@ class Importer extends Component {
             url: this.state.url,
             location: this.state.location
         }
-        console.log(payload)
         fetch(fetchUrl, {
             method: 'POST',
             body: JSON.stringify(payload),
@@ -60,6 +60,18 @@ class Importer extends Component {
               'Content-Type': 'application/json'
             }
           })
+          .then(() => {
+            console.log("Request successful")
+            this.state.requestSuccess = true
+            this.forceUpdate()
+          }
+          )
+          .catch(() =>  {
+          console.log("Request failed")
+          this.state.requestSuccess = false
+          this.forceUpdate()
+          }
+          )
     }
 
     handleDrChange(e) {
@@ -116,6 +128,26 @@ class Importer extends Component {
                 </div>
             )
         }
+        var messageConfirmation = null;
+        if (this.state.requestSuccess != null) {
+            if (this.state.requestSuccess) {
+                messageConfirmation = (
+                    <div>
+                        <p><strong style={{color: 'green'}}>Request sent successfully. Thank you.</strong></p>
+                    </div>
+                    
+                )
+            }
+            else {
+                messageConfirmation = (
+                    <div>
+                        <p><strong style={{color: 'red'}}>Request send failed.</strong></p>
+                    </div>
+                    
+                )
+            }
+        }
+
         return (
             <section className="section">
                 <div className="container">
@@ -131,6 +163,7 @@ class Importer extends Component {
                             <br/>
                             {colInput}
                             {metadataInput}
+                            {messageConfirmation}
                         </div>
                         <br/>
                         <div className="column is-hidden-mobile"></div>
