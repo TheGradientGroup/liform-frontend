@@ -1,4 +1,5 @@
 import React, { Component } from 'react'
+import './TreatmentDetail.css'
 
 class Result extends Component {
 
@@ -11,13 +12,15 @@ class Result extends Component {
 
     render() {
         return (
-            <div className="hospital-desc">
-                <div className="columns">
-                    <div className="column has-text-left">
-                        <strong>{this.props.hospital.name}</strong>
-                        <p><em>{this.props.hospital.location}</em></p>
+            <div className="box">
+                <div className="hospital-desc">
+                    <div className="columns">
+                        <div className="column has-text-left">
+                            <strong>{this.props.hospital.name}</strong>
+                            <p><em>{this.props.hospital.location}</em></p>
+                        </div>
+                        <div className="column has-text-right">{this.formatCurrency(this.props.hospital.price)}</div>
                     </div>
-                    <div className="column has-text-right">{this.formatCurrency(this.props.hospital.price)}</div>
                 </div>
             </div>
         )
@@ -28,20 +31,9 @@ class ResultsList extends Component {
     render() {
         const items = this.props.results.map(result => <Result hospital={result} />)
         return (
-            <>
-                <div className="columns">
-                    <div className="column">
-                        <br />
-                        <img src="https://via.placeholder.com/300" />
-                    </div>
-                    <div className="column">
-                        <input type="text" className="input" placeholder="search for a hospital..." />
-                        <div className="box">
-                            {items}
-                        </div>
-                    </div>
-                </div>
-            </>
+            <div className="treatment-list">
+                {items}
+            </div>
         )
     }
 }
@@ -79,7 +71,7 @@ class TreatmentDetail extends Component {
     render() {
         return (
             <>
-                <section className="section">
+                <section className="section treatment-hero">
                     <div className="container">
                         <div className="columns">
                             <div className="column">
@@ -94,7 +86,16 @@ class TreatmentDetail extends Component {
                 <section className="section">
                     <div className="container">
                         <h4 className="title is-4 has-text-centered">Hospitals Near You</h4>
-                        <ResultsList results={this.state.results} />
+                        <div className="columns">
+                            <div className="column">
+                                <br />
+                                <img src="https://via.placeholder.com/300" />
+                            </div>
+                            <div className="column">
+                                <input type="text" className="input" placeholder="search for a hospital..." />
+                                <ResultsList results={this.state.results} />
+                            </div>
+                        </div>
                         <div className="has-text-centered"><em>Did you get this procedure? Help others out and <a href="#">share your medical bill here &rarr;</a></em></div>
                     </div>
                 </section>
