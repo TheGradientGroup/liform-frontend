@@ -5,7 +5,7 @@ import './TreatmentDetail.css'
 const BASE_URL = 'https://liform-backend.herokuapp.com'
 
 function formatCurrency(amount) {
-   return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(amount)
+    return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(amount)
 }
 
 class Result extends Component {
@@ -45,6 +45,7 @@ class TreatmentDetail extends Component {
         this.state = {
             treatmentName: 'Cartoid Artery Stent Procedure',
             averageCost: 0,
+            selectedHospitalId: '',
             results: [
                 {
                     name: 'X Hospital',
@@ -61,16 +62,31 @@ class TreatmentDetail extends Component {
     }
 
     componentDidMount() {
-        fetch(`${BASE_URL}/procedures/${this.props.match.params.id}`)
+        const id = this.props.match.params.id
+        fetch(`${BASE_URL}/procedures/${id}`)
             .then(res => res.json())
-            .then(obj => this.setState({averageCost: obj.avg}))
-    }
-
-    calculuateAverageCost(results) {
-        return results => results.reduce((a, b) => a.price + b, 0) / results.length
+            .then(obj => {
+                this.setState({
+                    treatmentName: obj.desc,
+                    averageCost: obj.avg
+                })
+                return fetch(`${BASE_URL}/procedures/${id}/${this.state.selectedHospitalId}`)
+                    .then(res => res.json())
+            })
     }
 
     render() {
+        var hospitalSelector = null
+        if (Array.isArray(this.state.hospitals) && this.state.hospitals.length > 0) {
+            var hospitalOptions = this.state.hospitals.map((val, idx) => {
+                return <option key={idx} value={val._id}>{val.name}</option>
+            })
+            hospitalSelector = (
+                <select className="input" onChange={this.changeHospital}>
+                    {hospitalOptions}
+                </select>
+            )
+        }
         return (
             <>
                 <section className="section treatment-hero">
@@ -95,10 +111,8 @@ class TreatmentDetail extends Component {
                                     <XAxis dataKey="name" />
                                     <YAxis />
                                     <Tooltip />
-                                    {/* <Legend /> */}
                                     {
                                         this.state.results.map((result) => {
-
                                             return <Bar />
                                         })
                                         // TODO: Fill smallest bar with different color
@@ -106,7 +120,7 @@ class TreatmentDetail extends Component {
                                 </BarChart>
                             </div>
                             <div className="column">
-                                {/* TODO: Replace with dropdown menu */}
+                                <p><strong>Hospital Name:</strong> <div className="select">{hospitalSelector}</div></p>
                                 <ResultsList results={this.state.results} />
                             </div>
                         </div>
