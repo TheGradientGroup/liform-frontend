@@ -1,19 +1,18 @@
 import React, { Component } from 'react'
-import { Link } from 'react-router-dom'
+import { withRouter } from 'react-router-dom'
 import './Navbar.css'
-import { callbackify } from "util"
 import algoliasearch from 'algoliasearch/lite';
 import { connectAutoComplete } from 'react-instantsearch-dom';
 
 const searchClient = algoliasearch('ZL91PC3JWP', 'a50b8e6f848607e36fe279be76682f06');
+const index = searchClient.initIndex('drgs')
 
 class Navbar extends Component {
-    constructor() {
-        super()
+    constructor(props) {
+        super(props)
         this.state = {
             searchText: '',
             searchSuggestions: [
-                { "drg": "001", "desc": "Cancer of the code" }
             ],
             displaySuggestions: false
         }
@@ -33,39 +32,25 @@ class Navbar extends Component {
         })
     }
 
-    // onKeyDown = (e) => {
-    //     console.log(e.key)
-    //     // 'keypress' event misbehaves on mobile so we track 'Enter' key via 'keydown' event
-    //     if (event.key === 'Enter') {
-    //       // event.preventDefault();
-    //       // event.stopPropagation();
-    //       this.search(this.state.searchText);
-    //     }
-    // }
-
     search(query) {
-        fetch("https://liform-backend.herokuapp.com/search", {
-            method: 'GET',
-            body: {
-                query
-            },
-            headers: {
-                "Content-Type": "application/json"
-            }
+        index.search({
+            query,
+            attributesToRetrieve: ['desc', 'drg']
         })
-            .then(response => response.json())
-            .then(data => {
-                console.log(data)
+            .then(hits => {
+                this.setState({ searchSuggestions: hits })
+                console.log(hits)
             })
-            .catch(e => console.error(e))
-
+            .catch(err => {
+                console.error(err)
+            })
     }
 
     render() {
         var searchSugg = null
         if (this.state.displaySuggestions) {
-            var sugArr = this.state.searchSuggestions.map((val, idx) => {
-                return <option key={idx} value={val.desc} />
+            var sugArr = this.state.searchSuggestions.map(({ drg, desc }) => {
+                return <option key={drg} value={desc} onClick={() => { this.props.history.push(`/treatments/${drg}`) }} />
             })
             searchSugg = (
                 <datalist id="data">
@@ -79,8 +64,6 @@ class Navbar extends Component {
                     <img src="/logo.svg" className="liform-logo" />
                     <input
                         type="search"
-                        // value={this.props.currentRefinement}
-                        // onChange={event => this.props.refine(event.currentTarget.value)}
                         className="input liform-top-search"
                         value={this.state.searchText}
                         onChange={this.handleSearchTextChange}
@@ -95,4 +78,4 @@ class Navbar extends Component {
     }
 }
 
-export default (Navbar)
+export default connectAutoComplete(withRouter(Navbar))
