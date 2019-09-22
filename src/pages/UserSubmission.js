@@ -3,18 +3,32 @@ import './UserSubmission.css'
 
 const BASE_URL = 'https://liform-backend.herokuapp.com'
 
-export default class UserSubmissionPage extends Component {
+class UserSubmissionPage extends Component {
 
     constructor(props) {
         super(props)
         this.state = {
             drg: 0,
             cost: 0,
-            hospitalName: '' // TODO: Perform lookup of hospital and get ID
+            hospitalID: '', // TODO: Perform lookup of hospital and get ID,
+            hospitals: null
         }
         this.handleDrgChange = this.handleDrgChange.bind(this)
         this.handleCostChange = this.handleCostChange.bind(this)
-        this.handleHospitalNameChange = this.handleHospitalNameChange.bind(this)
+        this.changeHospital = this.changeHospital.bind(this)
+        this.uploadData = this.uploadData.bind(this)
+    }
+
+    componentDidMount() {
+        fetch(`${BASE_URL}/hospitals`)
+            .then(res => res.json())
+            .then(json => {
+                this.setState({ hospitals: json, hospitalID: json[0] })
+            })
+    }
+
+    changeHospital(e) {
+        this.setState({ hospitalID: e.target.value })
     }
 
     handleDrgChange(e) {
@@ -25,21 +39,17 @@ export default class UserSubmissionPage extends Component {
         this.setState({ cost: e.target.value })
     }
 
-    handleHospitalNameChange(e) {
-        this.setState({ hospitalName: e.target.value })
-    }
-
     uploadData() {
         const options = {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
             },
-            body: {
+            body: JSON.stringify({
                 drg: this.state.drg,
                 cost: this.state.cost,
-                hospitalName: this.state.hospitalName
-            }
+                hospitalID: this.state.hospitalID
+            })
         }
         fetch(`${BASE_URL}/admin/submissions/upload`, options)
             .catch(e => console.error(e))
@@ -48,19 +58,42 @@ export default class UserSubmissionPage extends Component {
     }
 
     render() {
+        var hospitalSelector = null
+        if (Array.isArray(this.state.hospitals) && this.state.hospitals.length > 0) {
+            var hospitalOptions = this.state.hospitals.map((val, idx) => {
+                return <option key={idx} value={val._id}>{val.name}</option>
+            })
+            hospitalSelector = (
+                <select className="input" onChange={this.changeHospital}>
+                    {hospitalOptions}
+                </select>
+            )
+        }
         return (
-            <>
-                <section id="userSubmission">
-                    <div className="title">Share your medical recipt data</div>
-                    <div className="subtitle">Your data is anonymized and not associated with you.</div>
-                    <div className="submission-box">
-                        <p><strong>DRG Code:</strong> <input type="number" max="999" value={this.state.drg} onChange={this.handleDrgChange} /></p>
-                        <p><strong>Treatment cost:</strong> $<input type="number" value={this.state.cost} onChange={this.handleCostChange} /></p>
-                        <p><strong>Hospital Name:</strong> <input type="text" value={this.state.hospitalName} onChange={this.handleHospitalNameChange} /></p>
-                        <button className="button is-primary" onClick={this.uploadData}>Complete Upload</button>
+            <section className="section">
+                <div className="container">
+                    <div className="columns">
+                        <div className="column">
+                            <section id="userSubmission">
+                                <div className="title">Share your medical recipt data</div>
+                                <div className="subtitle">Your data is anonymized and not associated with you.</div>
+                                <div className="submission-box">
+                                    <p><strong>DRG Code:</strong> <input className="input" type="number" max="999" value={this.state.drg} onChange={this.handleDrgChange} /></p>
+                                    <br />
+                                    <p><strong>Treatment cost (USD):</strong> <input className="input" type="number" value={this.state.cost} onChange={this.handleCostChange} /></p>
+                                    <br />
+                                    <p><strong>Hospital Name:</strong> <div className="select">{hospitalSelector}</div></p>
+                                    <br />
+                                    <button className="button is-primary" onClick={this.uploadData}>Complete Upload</button>
+                                </div>
+                            </section>
+                        </div>
+                        <div className="column is-hidden-mobile"></div>
                     </div>
-                </section>
-            </>
+                </div>
+            </section>
         )
     }
 }
+
+export default UserSubmissionPage
