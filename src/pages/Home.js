@@ -29,7 +29,8 @@ class Home extends Component {
             <Link to="/import">Import data &rarr;</Link>
           </div>
         </footer>
-      </>
+      </div>
+     </>
     )
   }
 }
