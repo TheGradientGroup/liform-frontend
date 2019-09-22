@@ -12,7 +12,9 @@ class Importer extends Component {
             drgCol: '',
             costCol: '',
             name: '',
-            url: ''
+            url: '',
+            location: '',
+            requestSuccess: null
         }
         this.handleFile = this.handleFile.bind(this)
         this.extractData = this.extractData.bind(this)
@@ -20,6 +22,7 @@ class Importer extends Component {
         this.handleCstChange = this.handleCstChange.bind(this)
         this.handleNameChange = this.handleNameChange.bind(this)
         this.handleUrlChange = this.handleUrlChange.bind(this)
+        this.handleLocationChange = this.handleLocationChange.bind(this)
         this.completeUpload = this.completeUpload.bind(this)
         this.fileInput = React.createRef()
     }
@@ -41,15 +44,34 @@ class Importer extends Component {
     }
     
     completeUpload() {
+        var fetchUrl = 'https://liform-backend.herokuapp.com/admin/importer/upload';
         var payload = {
             csv: JSON.stringify(this.state.csv),
             drgCol: this.state.drgCol,
             costCol: this.state.costCol,
             name: this.state.name,
-            url: this.state.url
+            url: this.state.url,
+            location: this.state.location
         }
-        console.log(payload)
-        // TODO: Submit via POST to server
+        fetch(fetchUrl, {
+            method: 'POST',
+            body: JSON.stringify(payload),
+            headers:{
+              'Content-Type': 'application/json'
+            }
+          })
+          .then(() => {
+            console.log("Request successful")
+            this.state.requestSuccess = true
+            this.forceUpdate()
+          }
+          )
+          .catch(() =>  {
+          console.log("Request failed")
+          this.state.requestSuccess = false
+          this.forceUpdate()
+          }
+          )
     }
 
     handleDrChange(e) {
@@ -66,6 +88,10 @@ class Importer extends Component {
 
     handleUrlChange(e) {
         this.setState({url: e.target.value})
+    }
+
+    handleLocationChange(e) {
+        this.setState({location: e.target.value})
     }
 
     render() {
@@ -95,12 +121,33 @@ class Importer extends Component {
                     <h2 className="title is-4">Enter Hospital Info</h2>
                     <br/>
                     <p><strong>Hospital Name:</strong> <input type="text" value={this.state.name} onChange={this.handleNameChange} /></p>
-                    <p><strong>Hospital URL:</strong> <input type="text" value={this.state.url} onChange={this.handleUrlChange} /></p> 
+                    <p><strong>Hospital URL:</strong> <input type="text" value={this.state.url} onChange={this.handleUrlChange} /></p>
+                    <p><strong>Hospital Location:</strong> <input type="text" value={this.state.location} onChange={this.handleLocationChange} /></p> 
                     <button className="button is-primary" onClick={this.completeUpload}>Complete Upload</button>
                     <br/>
                 </div>
             )
         }
+        var messageConfirmation = null;
+        if (this.state.requestSuccess != null) {
+            if (this.state.requestSuccess) {
+                messageConfirmation = (
+                    <div>
+                        <p><strong style={{color: 'green'}}>Request sent successfully. Thank you.</strong></p>
+                    </div>
+                    
+                )
+            }
+            else {
+                messageConfirmation = (
+                    <div>
+                        <p><strong style={{color: 'red'}}>Request send failed.</strong></p>
+                    </div>
+                    
+                )
+            }
+        }
+
         return (
             <section className="section">
                 <div className="container">
@@ -116,6 +163,7 @@ class Importer extends Component {
                             <br/>
                             {colInput}
                             {metadataInput}
+                            {messageConfirmation}
                         </div>
                         <br/>
                         <div className="column is-hidden-mobile"></div>
