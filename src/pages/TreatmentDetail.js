@@ -86,16 +86,7 @@ class TreatmentDetail extends Component {
                 <section className="section">
                     <div className="container">
                         <h4 className="title is-4 has-text-centered">Hospitals Near You</h4>
-                        <div className="columns">
-                            <div className="column">
-                                <br />
-                                <img src="https://via.placeholder.com/300" />
-                            </div>
-                            <div className="column">
-                                <input type="text" className="input" placeholder="search for a hospital..." />
-                                <ResultsList results={this.state.results} />
-                            </div>
-                        </div>
+                        <ResultsList results={this.state.results} />
                         <div className="has-text-centered"><em>Did you get this procedure? Help others out and <a href="#">share your medical bill here &rarr;</a></em></div>
                     </div>
                 </section>
