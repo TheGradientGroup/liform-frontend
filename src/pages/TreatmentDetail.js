@@ -42,8 +42,8 @@ class ResultsList extends Component {
 
 class TreatmentDetail extends Component {
 
-    constructor() {
-        super();
+    constructor(props) {
+        super(props);
         this.state = {
             treatmentName: 'Cartoid Artery Stent Procedure',
             averageCost: 0,
