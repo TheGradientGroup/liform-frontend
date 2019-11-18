@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import Head from 'next/head';
 import WithNavbar from "../components/WithNavbar";
 
 export default function Index() {
@@ -27,6 +28,9 @@ export default function Index() {
                     </div>
                 </footer>
             </div>
+            <Head>
+                <title key="title">Liform: Welcome</title>
+            </Head>
             <style jsx>
                 {`
                     * {
