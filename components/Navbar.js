@@ -1,8 +1,9 @@
+import Router from 'next/router';
 export default function Navbar() {
     return (
         <div className="liform-navbar">
             <div className="container liform-nav-container">
-                <img src="/logo.svg" className="liform-logo" />
+                <img src="/logo.svg" className="liform-logo" onClick={() => Router.push('/')} style={{cursor: 'pointer'}} />
                 <input type="text" className="input liform-top-search" placeholder="search for a treatment or DRG code" />
             </div>
             <style jsx>
