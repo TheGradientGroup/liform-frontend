@@ -34,6 +34,22 @@ function StatCategory(props) {
     );
 }
 
+function LocationStatCard(props) {
+    return (
+        <div className="box">
+            <div className="columns is-mobile">
+                <div className="column is-6">
+                    <h5 className="title is-6">{props.name}</h5>
+                    <h6 className="subtitle is-7">{props.location}</h6>
+                </div>
+                <div className="column has-text-right">
+                    <div className="subtitle is-6">{props.price} avg</div>
+                </div>
+            </div>
+        </div>
+    );
+}
+
 function TreatmentDetail(props) {
     const router = useRouter();
     const position = props.coords != null ? [props.coords.latitude, props.coords.longitude] : [32.985886, -96.748264];
@@ -67,35 +83,16 @@ function TreatmentDetail(props) {
                                 <TileLayer
                                     url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
                                 />
-                                <Marker position={position}>
-                                    <Popup>
-                                        A pretty CSS3 popup. <br /> Easily customizable.
-                                   </Popup>
-                                </Marker>
+                                <Marker position={position} />
                             </Map>
                         </div>
                         <div className="column" style={{ height: '400px' }}>
                             <h4 className="title is-4 has-text-centered">Hospitals Nearby</h4>
-                            <div style={{height: '90%', overflow: 'scroll', padding: '5px 30px'}}>
-                                <div className="box">
-                                    <div className="columns is-mobile">
-                                        <div className="column is-8">
-                                        <h5 className="title is-5">Medical City Dallas</h5>
-                                    <h6 className="subtitle is-6">Dallas, TX</h6>
-                                        </div>
-                                        <div className="column has-text-right">
-                                            <div className="subtitle is-5">$23,438</div>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div className="box">hi</div>
-                                <div className="box">hi</div>
-                                <div className="box">hi</div>
-                                <div className="box">hi</div>
-                                <div className="box">hi</div>
-                                <div className="box">hi</div>
-                                <div className="box">hi</div>
-                                <div className="box">hi</div>
+                            <div style={{ height: '90%', overflow: 'scroll', padding: '5px 30px' }}>
+                                <LocationStatCard name="Medical City Dallas" location="Dallas, TX" price="$23,985" />
+                                <LocationStatCard name="Vibra Hispital Richardson" location="Richardson, TX" price="$22,489" />
+                                <LocationStatCard name="Methodist Hospital Richardson" location="Richardson, TX" price="$21,233" />
+                                <LocationStatCard name="Kindred Hospital Dallas" location="Dallas, TX" price="$21,347" />
                             </div>
                         </div>
                     </div>
