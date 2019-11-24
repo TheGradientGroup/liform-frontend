@@ -25,6 +25,7 @@
     "next": "^9.1.3",
     "react": "^16.12.0",
     "react-dom": "^16.12.0",
+    "react-geolocated": "^3.0.1",
     "react-leaflet": "^2.6.0",
     "react-leaflet-universal": "^2.1.0"
   }
