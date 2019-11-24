@@ -1,7 +1,9 @@
 import { useRouter } from 'next/router';
 import Head from 'next/head';
+import dynamic from 'next/dynamic';
 import { Map, TileLayer, Marker, Popup } from 'react-leaflet-universal';
 import WithNavbar from '../../components/WithNavbar';
+import { geolocated } from 'react-geolocated';
 
 function StatCategory(props) {
     return (
@@ -32,9 +34,9 @@ function StatCategory(props) {
     );
 }
 
-export default function TreatmentDetail() {
+function TreatmentDetail(props) {
     const router = useRouter();
-    const position = [32.985886, -96.748264];
+    const position = props.coords != null ? [props.coords.latitude, props.coords.longitude] : [32.985886, -96.748264];
     return (
         <WithNavbar>
             <Head>
@@ -72,17 +74,29 @@ export default function TreatmentDetail() {
                                 </Marker>
                             </Map>
                         </div>
-                        <div className="column" style={{ height: '400px', overflow: 'scroll' }}>
+                        <div className="column" style={{ height: '400px' }}>
                             <h4 className="title is-4 has-text-centered">Hospitals Nearby</h4>
-                            <div className="box">hi</div>
-                            <div className="box">hi</div>
-                            <div className="box">hi</div>
-                            <div className="box">hi</div>
-                            <div className="box">hi</div>
-                            <div className="box">hi</div>
-                            <div className="box">hi</div>
-                            <div className="box">hi</div>
-                            <div className="box">hi</div>
+                            <div style={{height: '90%', overflow: 'scroll', padding: '5px 30px'}}>
+                                <div className="box">
+                                    <div className="columns is-mobile">
+                                        <div className="column is-8">
+                                        <h5 className="title is-5">Medical City Dallas</h5>
+                                    <h6 className="subtitle is-6">Dallas, TX</h6>
+                                        </div>
+                                        <div className="column has-text-right">
+                                            <div className="subtitle is-5">$23,438</div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div className="box">hi</div>
+                                <div className="box">hi</div>
+                                <div className="box">hi</div>
+                                <div className="box">hi</div>
+                                <div className="box">hi</div>
+                                <div className="box">hi</div>
+                                <div className="box">hi</div>
+                                <div className="box">hi</div>
+                            </div>
                         </div>
                     </div>
                     <p className="disclaimer"><small>*Based on a combination of hospital-reported and self-uploaded cost reports. Data exculsively for informational purposes.</small></p>
@@ -109,3 +123,5 @@ export default function TreatmentDetail() {
         </WithNavbar>
     );
 };
+
+export default geolocated()(TreatmentDetail);
