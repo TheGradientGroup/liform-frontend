@@ -24,7 +24,7 @@ export default function Index() {
                     <div className="container has-text-centered">
                         &copy; 2019 Liform Labs.
                         <br />
-                        <Link><a href="/import">Import data &rarr;</a></Link>
+                        <Link href="/import"><a href="/import">Import data &rarr;</a></Link>
                     </div>
                 </footer>
             </div>
