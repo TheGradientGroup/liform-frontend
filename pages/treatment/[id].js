@@ -1,9 +1,11 @@
 import { useRouter } from 'next/router';
 import Head from 'next/head';
+import Error from 'next/error'
 import dynamic from 'next/dynamic';
 import { Map, TileLayer, Marker, Popup } from 'react-leaflet-universal';
 import WithNavbar from '../../components/WithNavbar';
 import { geolocated } from 'react-geolocated';
+import axios from 'axios';
 
 function StatCategory(props) {
     return (
@@ -50,20 +52,37 @@ function LocationStatCard(props) {
     );
 }
 
+function _TreatmentMap(props) {
+    const position = props.coords != null ? [props.coords.latitude, props.coords.longitude] : [32.985886, -96.748264];
+    return (
+        <Map center={position} zoom={13} style={{ height: '400px' }} attributionControl={false}>
+            <TileLayer
+                url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+            />
+            <Marker position={position} />
+        </Map>
+    );
+}
+
+const TreatmentMap = geolocated()(_TreatmentMap);
+
 function TreatmentDetail(props) {
     const router = useRouter();
-    const position = props.coords != null ? [props.coords.latitude, props.coords.longitude] : [32.985886, -96.748264];
+
+    if (props.error) {
+        return <Error statusCode={404} />
+    }
     return (
         <WithNavbar>
             <Head>
-                <title key="title">Liform: Treatment ID {router.query.id}</title>
+                <title key="title">Liform: {props.humanName}</title>
             </Head>
             <section className="section treatment-hero">
                 <div className="container">
                     <div className="columns">
                         <div className="column">
-                            <h1 className="title is-2">Sub-cranial multifaction with MCC</h1>
-                            <h2 className="subtitle">DRG treatment ID: {router.query.id}</h2>
+                            <h1 className="title is-2">{props.humanName}</h1>
+                            <h2 className="subtitle">DRG treatment ID: {props.drg}</h2>
                         </div>
                     </div>
                 </div>
@@ -79,12 +98,7 @@ function TreatmentDetail(props) {
                     <h3 className="title is-3">Costs Near You*</h3>
                     <div className="columns">
                         <div className="column">
-                            <Map center={position} zoom={13} style={{ height: '400px' }} attributionControl={false}>
-                                <TileLayer
-                                    url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-                                />
-                                <Marker position={position} />
-                            </Map>
+                            <TreatmentMap />
                         </div>
                         <div className="column" style={{ height: '400px' }}>
                             <h4 className="title is-4 has-text-centered">Hospitals Nearby</h4>
@@ -121,4 +135,14 @@ function TreatmentDetail(props) {
     );
 };
 
-export default geolocated()(TreatmentDetail);
+TreatmentDetail.getInitialProps = async function ({ query }) {
+    try {
+        const result = await axios.get(`${process.env.API_SERVER}/info/${query.id}`)
+        const data = result.data
+        return { drg: data.drg, humanName: data['human_name'], name: data.name, error: false }
+    } catch (err) {
+        return { drg: 0, humanName: '', name: '', error: true }
+    }
+};
+
+export default TreatmentDetail;

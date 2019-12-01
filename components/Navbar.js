@@ -14,7 +14,7 @@ class Navbar extends Component {
     }
     handleChange(e) {
         if (e.target.value.length > 0 && this.state.getSuggestion) {
-            axios.get(`//localhost:5000/search/drgs/${e.target.value}`).then(res => this.setState({ oldSuggs: this.state.suggs, suggs: res.data }))
+            axios.get(`${process.env.API_SERVER}/search/drgs/${e.target.value}`).then(res => this.setState({ oldSuggs: this.state.suggs, suggs: res.data }))
         }
         this.setState({ input: e.target.value, getSuggestion: false })
         setTimeout(() => this.setState({ getSuggestion: true }), 300)
