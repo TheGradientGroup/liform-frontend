@@ -1,14 +1,12 @@
+import { useRef, createRef, Component } from 'react';
 import { useRouter } from 'next/router';
 import Head from 'next/head';
 import Error from 'next/error'
-import dynamic from 'next/dynamic';
-import { Map, TileLayer, Marker, Popup } from 'react-leaflet-universal';
+import { Map, TileLayer, Marker, Popup, Tooltip } from 'react-leaflet-universal';
 import WithNavbar from '../../components/WithNavbar';
-import { geolocated } from 'react-geolocated';
 import axios from 'axios';
 
-function StatCategory(props) {
-    return (
+const StatCategory = props => (
         <div className="stat-category">
             <hr />
             <h4 className="title is-5">{props.category}</h4>
@@ -33,116 +31,167 @@ function StatCategory(props) {
                 </div>
             </nav>
         </div>
-    );
-}
+);
 
-function LocationStatCard(props) {
-    return (
-        <div className="box">
-            <div className="columns is-mobile">
-                <div className="column is-6">
-                    <h5 className="title is-6">{props.name}</h5>
-                    <h6 className="subtitle is-7">{props.location}</h6>
-                </div>
-                <div className="column has-text-right">
-                    <div className="subtitle is-6">{props.price} avg</div>
-                </div>
+
+const LocationStatCard = props => (
+    <div className="box">
+        <div className="columns is-mobile">
+            <div className="column is-6">
+                <h5 className="title is-6">{props.name}</h5>
+                <h6 className="subtitle is-7">{props.location}</h6>
+            </div>
+            <div className="column has-text-right">
+                <div className="subtitle is-6">{props.price} avg</div>
             </div>
         </div>
-    );
-}
+    </div>
+);
 
-function _TreatmentMap(props) {
-    const position = props.coords != null ? [props.coords.latitude, props.coords.longitude] : [32.985886, -96.748264];
-    return (
-        <Map center={position} zoom={13} style={{ height: '400px' }} attributionControl={false}>
-            <TileLayer
-                url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-            />
-            <Marker position={position} />
-        </Map>
-    );
-}
+class TreatmentDetail extends Component {
 
-const TreatmentMap = geolocated()(_TreatmentMap);
-
-function TreatmentDetail(props) {
-    const router = useRouter();
-
-    if (props.error) {
-        return <Error statusCode={404} />
+    constructor(props) {
+        super(props);
+        this.formatter = new Intl.NumberFormat('en-US', {
+            style: 'currency',
+            currency: 'USD',
+            minimumFractionDigits: 2
+        });
+        this.state = {
+            lat: props.lat,
+            lon: props.lon,
+            nearMe: props.nearMe
+        };
     }
-    return (
-        <WithNavbar>
-            <Head>
-                <title key="title">Liform: {props.humanName}</title>
-            </Head>
-            <section className="section treatment-hero">
-                <div className="container">
-                    <div className="columns">
-                        <div className="column">
-                            <h1 className="title is-2">{props.humanName}</h1>
-                            <h2 className="subtitle">DRG treatment ID: {props.drg}</h2>
-                        </div>
-                    </div>
-                </div>
-            </section>
-            <section className="section">
-                <div className="container">
-                    <h3 className="title is-3">Cost Data</h3>
-                    <StatCategory category="This Year, National*" low="$16,224" high="$48,238" average="$23,483" />
-                    <StatCategory category="This Year, Texas*" low="$17,659" high="$40,548" average="$20,484" />
-                    <StatCategory category="This Year, DFW Area*" low="$18,384" high="$30,436" average="$22,348" />
-                    <hr />
-                    <br />
-                    <h3 className="title is-3">Costs Near You*</h3>
-                    <div className="columns">
-                        <div className="column">
-                            <TreatmentMap />
-                        </div>
-                        <div className="column" style={{ height: '400px' }}>
-                            <h4 className="title is-4 has-text-centered">Hospitals Nearby</h4>
-                            <div style={{ height: '90%', overflow: 'scroll', padding: '5px 30px' }}>
-                                <LocationStatCard name="Medical City Dallas" location="Dallas, TX" price="$23,985" />
-                                <LocationStatCard name="Vibra Hispital Richardson" location="Richardson, TX" price="$22,489" />
-                                <LocationStatCard name="Methodist Hospital Richardson" location="Richardson, TX" price="$21,233" />
-                                <LocationStatCard name="Kindred Hospital Dallas" location="Dallas, TX" price="$21,347" />
+
+    static async getInitialProps({ query }) {
+        try {
+            const data = (await axios.get(`${process.env.API_SERVER}/info/${query.id}`)).data,
+                location = (await axios.get(`http://api.ipstack.com/check?access_key=${process.env.IPSTACK_KEY}`)).data,
+                nearMe = (await axios.get(`${process.env.API_SERVER}/nearme/${query.id}/${location.latitude}/${location.longitude}`)).data
+            var nationalStats = await axios.get(`${process.env.API_SERVER}/stats/${query.id}/national`)
+            nationalStats = nationalStats.data.length > 0 ? nationalStats.data[0] : {}
+            var stateStats = await axios.get(`${process.env.API_SERVER}/stats/${query.id}/${location.region_code}`)
+            stateStats = stateStats.data.length > 0 ? stateStats.data[0] : {}
+            return {
+                drg: data.drg,
+                humanName: data['human_name'],
+                name: data.name,
+                error: false,
+                lat: location.latitude,
+                lon: location.longitude,
+                state: location.region_code,
+                nationalStats,
+                stateStats,
+                nearMe,
+                query
+            }
+        } catch (err) {
+            return { drg: 0, humanName: '', name: '', error: true }
+        }
+    }
+
+    handleMovement(e) {
+        axios
+            .get(`${process.env.API_SERVER}/nearme/${this.props.query.id}/${e.center[0]}/${e.center[1]}`)
+            .then(res => {
+                if (res.status !== 200) {
+                    return;
+                }
+                this.setState({ nearMe: res.data })
+            })
+    }
+
+    render() {
+        if (this.props.error) {
+            return <Error statusCode={404} />
+        }
+        const nationalStats = {
+            low: this.props.nationalStats.min ? this.formatter.format(this.props.nationalStats.min) : 'none',
+            high: this.props.nationalStats.max ? this.formatter.format(this.props.nationalStats.max) : 'none',
+            avg: this.props.nationalStats.avg ? this.formatter.format(this.props.nationalStats.avg) : 'none'
+        };
+        const stateStats = {
+            low: this.props.stateStats.min ? this.formatter.format(this.props.stateStats.min) : 'none',
+            high: this.props.stateStats.max ? this.formatter.format(this.props.stateStats.max) : 'none',
+            avg: this.props.stateStats.avg ? this.formatter.format(this.props.nationalStats.avg) : 'none'
+        };
+        return (
+            <WithNavbar>
+                <Head>
+                    <title key="title">Liform: {this.props.humanName}</title>
+                </Head>
+                <section className="section treatment-hero">
+                    <div className="container">
+                        <div className="columns">
+                            <div className="column">
+                                <h1 className="title is-2">{this.props.humanName}</h1>
+                                <h2 className="subtitle">DRG treatment ID: {this.props.drg}</h2>
                             </div>
                         </div>
                     </div>
-                    <p className="disclaimer"><small>*Based on a combination of hospital-reported and self-uploaded cost reports. Data exculsively for informational purposes.</small></p>
-                </div>
-            </section>
-            <style jsx>
-                {`
-                    * {
-                        font-family: Archivo, sans-serif;
-                    }
-                    .treatment-list {
-                        padding: 16px 0px;
-                    }
-                    
-                    .treatment-hero {
-                        background: #f4f4f4;
-                    }
-                    
-                    .disclaimer {
-                        font-style: italic;
-                    }
-                `}
-            </style>
-        </WithNavbar>
-    );
-};
-
-TreatmentDetail.getInitialProps = async function ({ query }) {
-    try {
-        const result = await axios.get(`${process.env.API_SERVER}/info/${query.id}`)
-        const data = result.data
-        return { drg: data.drg, humanName: data['human_name'], name: data.name, error: false }
-    } catch (err) {
-        return { drg: 0, humanName: '', name: '', error: true }
+                </section>
+                <section className="section">
+                    <div className="container">
+                        <h3 className="title is-3">Cost Data</h3>
+                        <StatCategory category="Price, National*" low={nationalStats.low} high={nationalStats.high} average={nationalStats.avg} />
+                        <StatCategory category="Price, National*" low={stateStats.low} high={stateStats.high} average={stateStats.avg} />
+                        <hr />
+                        <br />
+                        <h3 className="title is-3">Costs Near You*</h3>
+                        <div className="columns">
+                            <div className="column">
+                                <Map center={[this.state.lat, this.state.lon]} zoom={13} style={{ height: '400px' }} attributionControl={false} onViewportChanged={this.handleMovement.bind(this)}>
+                                    <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
+                                    {this.state.nearMe.map(x => {
+                                        var lon = x.location.coordinates[0]
+                                        var lat = x.location.coordinates[1]
+                                        return (
+                                            <Marker position={[lat, lon]} key={`${lat}${lon}`}>
+                                                <Tooltip>
+                                                    <strong>{x.name}</strong>: {x.city}, {x.state}
+                                                </Tooltip>
+                                            </Marker>
+                                        );
+                                    })}
+                                </Map>
+                            </div>
+                            <div className="column" style={{ height: '400px' }}>
+                                <h4 className="title is-4 has-text-centered">Hospitals Nearby</h4>
+                                <div style={{ height: '90%', overflow: 'scroll', padding: '5px 30px' }}>
+                                    {this.state.nearMe.map(x => {
+                                        console.log(x)
+                                        var price = this.formatter.format(x['avg_reported'][0]['avg'])
+                                        return <LocationStatCard name={x.name} location={`${x.city}, ${x.state}`} price={price} />
+                                    })}
+                                    {this.state.nearMe.length === 0 ? <h2 className="subtitle is-6 has-text-centered"><em>no nearby hospitals with price data</em></h2> : null}
+                                </div>
+                            </div>
+                        </div>
+                        <p className="disclaimer"><small>*Based on hospital-reported cost reports. Data exculsively for informational purposes.</small></p>
+                    </div>
+                </section>
+                <style jsx>
+                    {`
+                        * {
+                            font-family: Archivo, sans-serif;
+                        }
+                        .treatment-list {
+                            padding: 16px 0px;
+                        }
+                        
+                        .treatment-hero {
+                            background: #f4f4f4;
+                        }
+                        
+                        .disclaimer {
+                            font-style: italic;
+                        }
+                    `}
+                </style>
+            </WithNavbar>
+        );
     }
-};
+}
 
 export default TreatmentDetail;
