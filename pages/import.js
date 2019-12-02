@@ -1,6 +1,9 @@
 import Head from 'next/head';
 import { Component } from 'react';
 import WithNavbar from "../components/WithNavbar";
+import axios from 'axios';
+import classNames from 'classnames';
+import { Router } from 'next/router';
 
 
 class Import extends Component {
@@ -8,22 +11,80 @@ class Import extends Component {
         super(props);
         this.fileInput = React.createRef();
         this.state = {
-            buttonDisabled: false
+            providerName: '',
+            city: '',
+            state: '',
+            lat: '',
+            lon: '',
+            buttonDisabled: false,
+            file: null,
+            part: 1,
+            columns: [],
+            fileName: '',
+            drgColumnIndex: -1,
+            priceColumnIndex: -1
         };
     }
-    componentDidMount() { 
+    componentDidMount() {
         this.fileInput.current.addEventListener('change', this.handleFile, false);
     }
-    componentWillUnmount() { 
+    componentWillUnmount() {
         this.fileInput.current.removeEventListener('change', this.handleFile);
     }
-    handleFile = e => {
-        if (e.target.files.length === 1) { 
-            var formData = new FormData();
-            data.append('sheet', e.target.files[0])
-        }
-        this.setState({ buttonDisabled: true });
+    handleFormChange(e) {
+        var newState = {}
+        newState[e.target.name] = e.target.value;
+        this.setState(newState);
     }
+    handleFile = e => {
+        if (e.target.files.length === 1) {
+            this.setState({ buttonDisabled: true, file: e.target.files[0], fileName: e.target.files[0].name });
+            var formData = new FormData();
+            formData.append('sheet', e.target.files[0]);
+            const reqOptions = {
+                method: 'post',
+                url: `${process.env.API_SERVER}/import/step/1`,
+                data: formData,
+                headers: {
+                    'content-type': `multipart/form-data; boundary=${formData._boundary}`
+                }
+            };
+            axios(reqOptions).then(res => {
+                this.setState({ columns: res.data, part: this.state.part + 1 })
+            })
+        }
+    }
+
+    submitData() {
+        this.setState({ part: this.state.part + 1 });
+        var formData = new FormData();
+        formData.append('sheet', this.state.file);
+        formData.append('providerName', this.state.providerName);
+        formData.append('city', this.state.city);
+        formData.append('state', this.state.state);
+        formData.append('lat', this.state.lat);
+        formData.append('lon', this.state.lon);
+        formData.append('drgIndex', this.state.drgColumnIndex);
+        formData.append('priceIndex', this.state.priceColumnIndex);
+        const reqOptions = {
+            method: 'post',
+            url: `${process.env.API_SERVER}/import/step/2`,
+            data: formData,
+            headers: {
+                'content-type': `multipart/form-data; boundary=${formData._boundary}`
+            }
+        };
+        axios(reqOptions).then(res => {
+            if (res.status === 200) {
+                this.setState({ part: this.state.part + 1 });
+            } else {
+                console.error('we failed.');
+                Router.push('/');
+            }
+
+        })
+    }
+
     render() {
         return (
             <WithNavbar>
@@ -41,7 +102,7 @@ class Import extends Component {
                     </div>
                 </section>
                 <section className="section">
-                    <div className="container">
+                    <div className={classNames("container", { "is-hidden": this.state.part !== 1 })}>
                         <h1 className="title has-text-centered">Step 1: The Basics</h1>
                         <h2 className="subtitle has-text-centered">Enter the name and location of your facility.</h2>
                         <div className="columns">
@@ -49,14 +110,15 @@ class Import extends Component {
                             <div className="column">
                                 <div className="field is-grouped">
                                     <div className="control is-expanded">
-                                        <input className="input" type="text" placeholder="Provider name" />
+                                        <input className="input" type="text" placeholder="Provider name" name="providerName" onChange={this.handleFormChange.bind(this)} value={this.state.providerName} required />
                                     </div>
                                     <div className="control is-expanded">
-                                        <input className="input" type="text" placeholder="City" />
+                                        <input className="input" type="text" placeholder="City" name="city" onChange={this.handleFormChange.bind(this)} value={this.state.city} required />
                                     </div>
                                     <div className="control">
                                         <div className="select">
-                                            <select>
+                                            <select name="state" onChange={this.handleFormChange.bind(this)} value={this.state.state} required>
+                                                <option>-</option>
                                                 <option value="AL">AL</option>
                                                 <option value="AK">AK</option>
                                                 <option value="AR">AR</option>
@@ -114,20 +176,18 @@ class Import extends Component {
                                 </div>
                                 <div className="field is-grouped">
                                     <div className="control is-expanded">
-                                        <input type="text" className="input" placeholder="latitude" />
+                                        <input type="text" className="input" placeholder="latitude" name="lat" value={this.state.lat} onChange={this.handleFormChange.bind(this)} required />
                                     </div>
                                     <div className="control is-expanded">
-                                        <input type="text" className="input" placeholder="longitude" />
+                                        <input type="text" className="input" placeholder="longitude" name="lon" value={this.state.lon} onChange={this.handleFormChange.bind(this)} required />
                                     </div>
                                 </div>
+                                <button className="button is-info" onClick={() => this.setState({ part: this.state.part + 1 })}>Next &rarr;</button>
                             </div>
                             <div className="column is-2 is-hidden-mobile"></div>
                         </div>
                     </div>
-                    <br />
-                    <hr />
-                    <br />
-                    <div className="container">
+                    <div className={classNames("container", { "is-hidden": this.state.part !== 2 })}>
                         <h1 className="title has-text-centered">Step 2: Upload Price Data</h1>
                         <h2 className="subtitle has-text-centered">Upload an Excel spreadsheet with DRGs and typical prices.</h2>
                         <details className="has-text-centered">
@@ -136,7 +196,7 @@ class Import extends Component {
                             <img src="/import-example.png" alt="import example" width="500px" />
                         </details>
                         <br />
-                        <div className="file is-centered is-info">
+                        <div className="file has-name is-centered is-info">
                             <label className="file-label">
                                 <input className="file-input" type="file" accept=".xls,.xlsx" ref={this.fileInput} disabled={this.state.inputDisabled} />
                                 <span className="file-cta">
@@ -144,8 +204,54 @@ class Import extends Component {
                                         Pick a file to upload...
                                     </span>
                                 </span>
+                                <span className="file-name">
+                                    {this.state.fileName}
+                                </span>
                             </label>
                         </div>
+                    </div>
+                    <div className={classNames("container", { "is-hidden": this.state.part !== 3 })}>
+                        <h1 className="title has-text-centered">Step 3: Select Column Mappings</h1>
+                        <h2 className="subtitle has-text-centered">Select which column contains the DRG, and which column contains the DRG cost.</h2>
+                        <div className="columns">
+                            <div className="column has-text-centered"><strong>Current DRG column:</strong><br />{this.state.drgColumnIndex === -1 ? <span>none</span> : <code>{this.state.columns[this.state.drgColumnIndex]}</code>} </div>
+                            <div className="column has-text-centered"><strong>Current price column:</strong><br />{this.state.priceColumnIndex === -1 ? <span>none</span> : <code>{this.state.columns[this.state.priceColumnIndex]}</code>} </div>
+                        </div>
+                        <br /><br />
+                        <div className="columns">
+                            {this.state.columns.map((val, idx) =>
+                                <div className={classNames("column", { 'is-hidden': this.state.drgColumnIndex === idx || this.state.priceColumnIndex === idx || (this.state.drgColumnIndex !== -1 && this.state.priceColumnIndex !== -1) })} key={idx}>
+                                    <h2 className="subtitle"><code>{val}</code></h2>
+                                    <br />
+                                    <div className="buttons is-grouped">
+                                        <button className={classNames('button', 'is-link', { 'is-hidden': this.state.drgColumnIndex !== -1 })} onClick={() => this.setState({ drgColumnIndex: idx })}>DRG Column</button>
+                                        <button className={classNames('button', 'is-success', { 'is-hidden': this.state.priceColumnIndex !== -1 })} onClick={() => this.setState({ priceColumnIndex: idx })}>Price Column</button>
+                                    </div>
+                                    <hr />
+                                </div>
+                            )}
+                        </div>
+                        <br />
+                        <div className="buttons is-grouped">
+                            <button className="button is-danger" onClick={() => this.setState({ drgColumnIndex: -1, priceColumnIndex: -1 })}>Reset Mappings</button>
+                            <button className={classNames("button", "is-primary", { 'is-hidden': this.state.drgColumnIndex === -1 || this.state.priceColumnIndex === -1 })} onClick={this.submitData.bind(this)}>Submit</button>
+                        </div>
+                    </div>
+                    <div className={classNames("container", { "is-hidden": this.state.part !== 4 })}>
+                        <h1 className="title has-text-centered">Uploading...</h1>
+                        <h2 className="subtitle has-text-centered">We're uploading your data right now. Please don't close this tab.</h2>
+                        <br />
+                        <div className="columns">
+                            <div className="column is-4"></div>
+                            <div className="column">
+                                <progress className="progress is-small is-primary" max="100">Loading...</progress>
+                            </div>
+                            <div className="column is-4"></div>
+                        </div>
+                    </div>
+                    <div className={classNames("container", { "is-hidden": this.state.part !== 5 })}>
+                        <h1 className="title has-text-centered">Upload Complete</h1>
+                        <h2 className="subtitle has-text-centered">Congrats! You're done.</h2>
                     </div>
                 </section>
             </WithNavbar>
