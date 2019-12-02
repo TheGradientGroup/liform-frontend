@@ -101,6 +101,7 @@ class Import extends Component {
                         </div>
                     </div>
                 </section>
+                <progress className="progress is-info" style={{borderRadius: 0}} max="5" value={this.state.part !== 4 ? this.state.part : null }></progress>
                 <section className="section">
                     <div className={classNames("container", { "is-hidden": this.state.part !== 1 })}>
                         <h1 className="title has-text-centered">Step 1: The Basics</h1>
@@ -241,13 +242,6 @@ class Import extends Component {
                         <h1 className="title has-text-centered">Uploading...</h1>
                         <h2 className="subtitle has-text-centered">We're uploading your data right now. Please don't close this tab.</h2>
                         <br />
-                        <div className="columns">
-                            <div className="column is-4"></div>
-                            <div className="column">
-                                <progress className="progress is-small is-primary" max="100">Loading...</progress>
-                            </div>
-                            <div className="column is-4"></div>
-                        </div>
                     </div>
                     <div className={classNames("container", { "is-hidden": this.state.part !== 5 })}>
                         <h1 className="title has-text-centered">Upload Complete</h1>
