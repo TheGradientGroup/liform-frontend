@@ -135,7 +135,7 @@ class TreatmentDetail extends Component {
                     <div className="container">
                         <h3 className="title is-3">Cost Data</h3>
                         <StatCategory category="Price, National*" low={nationalStats.low} high={nationalStats.high} average={nationalStats.avg} />
-                        <StatCategory category="Price, National*" low={stateStats.low} high={stateStats.high} average={stateStats.avg} />
+                        <StatCategory category={`Price, ${this.props.state}*`} low={stateStats.low} high={stateStats.high} average={stateStats.avg} />
                         <hr />
                         <br />
                         <h3 className="title is-3">Costs Near You*</h3>
