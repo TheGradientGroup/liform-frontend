@@ -1,6 +1,8 @@
 {
-    "env": {
-        "API_SERVER": "@apiserver",
-        "IPSTACK_KEY": "@ipstack-key"
+    "build": {
+        "env": {
+            "API_SERVER": "@apiserver",
+            "IPSTACK_KEY": "@ipstack-key"
+        }
     }
 }

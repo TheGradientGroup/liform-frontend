@@ -2,6 +2,9 @@ import Link from 'next/link';
 import Head from 'next/head';
 import WithNavbar from "../components/WithNavbar";
 
+
+console.log(process.env)
+
 export default function Index() {
     return (
         <WithNavbar>

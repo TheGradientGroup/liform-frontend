@@ -140,7 +140,7 @@ class TreatmentDetail extends Component {
                         <h3 className="title is-3">Costs Near You*</h3>
                         <div className="columns">
                             <div className="column">
-                                <Map center={[this.state.lat, this.state.lon]} zoom={13} style={{ height: '400px' }} attributionControl={false} onViewportChanged={this.handleMovement.bind(this)}>
+                                <Map center={[this.state.lat, this.state.lon]} zoom={10} style={{ height: '400px' }} attributionControl={false} onViewportChanged={this.handleMovement.bind(this)}>
                                     <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
                                     {this.state.nearMe.map(x => {
                                         var lon = x.location.coordinates[0]
