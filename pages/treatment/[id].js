@@ -1,8 +1,7 @@
-import { useRef, createRef, Component } from 'react';
-import { useRouter } from 'next/router';
+import { Component } from 'react';
 import Head from 'next/head';
 import Error from 'next/error'
-import { Map, TileLayer, Marker, Popup, Tooltip } from 'react-leaflet-universal';
+import { Map, TileLayer, Marker, Tooltip } from 'react-leaflet-universal';
 import WithNavbar from '../../components/WithNavbar';
 import axios from 'axios';
 
